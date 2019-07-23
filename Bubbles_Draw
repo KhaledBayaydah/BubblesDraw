@@ -1,0 +1,204 @@
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.util.*;
+import javax.swing.Timer;
+import java.lang.Math;
+
+public class DrawBubbles {
+
+    private JFrame frame;
+
+    // The method to set up
+    public DrawBubbles() {
+
+        frame = new JFrame("Bar Graph");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // the event that triggers the end of the program
+        frame.setPreferredSize(frame.getSize()); 
+        frame.add(new DrawBubs(frame.getSize())); // Setting up the DrawBars public class function (getting bars and putting it in this frame)
+        frame.pack();
+        frame.setVisible(true);
+
+    }
+
+    // The main method
+    public static void main(String... argv) {
+
+        new DrawBubbles();
+
+    }
+
+    public static class DrawBubs extends JPanel  implements Runnable, MouseListener {
+
+        /*
+         * Declare Class Variables Here
+         */
+        private Thread animator;
+        
+        //An arraylist linked to the Bubble class
+        ArrayList<Bubble> b = new ArrayList<Bubble>();
+
+
+        public DrawBubs(Dimension dimension) {
+
+            setSize(dimension);
+            setPreferredSize(dimension);
+            addMouseListener(this);
+            if (animator == null ) {
+                animator = new Thread(this);
+                animator.start();
+            }
+
+            setDoubleBuffered(true);
+
+        }
+
+        @Override
+
+        public void paintComponent(Graphics g) {
+
+            Graphics2D g2 = (Graphics2D)g;//g2 is the graphics object that we need to use
+
+            //to draw things to the screen
+            Dimension d = getSize();
+
+            //create a background
+            g2.setColor(Color.white);
+            g2.fillRect(0, 0, d.width, d.height);
+            
+            //Drawing the circles over and over
+            for(int i =0; i<b.size(); i ++){
+                Bubble bub = b.get(i);
+                g2.setColor(bub.c);
+                g2.fillOval(bub.x , bub.y, bub.w, bub.w);
+                //makes the color change each time a bubble hits a wall
+                if(bub.x+bub.w >= 600 || bub.x<= 0 || bub.y+bub.w >=400 || bub.y <=0){
+                    int max = 255, min = 0;
+                    int RandomNum = (int) (Math.random() * ((max - min) +1 )) + min;
+                    int RandomNum1 = (int) (Math.random() * ((max - min) +1 )) + min;
+                    int RandomNum2 = (int) (Math.random() * ((max - min) +1 )) + min;
+                    bub.c = new Color(RandomNum, RandomNum1, RandomNum2);
+           
+            }}
+            
+            /**/
+            //calling the seperate methods to move bubbles and make them bounce off the walls
+            moveBubbles();
+            BounceOff();
+
+        
+
+        }// end of paintComponent
+        
+        public void moveBubbles(){
+            //make teh bubbles move at a certain speed
+            for(int i =0; i<b.size(); i ++){
+                Bubble bub = b.get(i);
+                bub.x += bub.Speedx;
+                bub.y += bub.Speedy;
+                //change the speed of the bubbles each time a bubble hits a wall
+                if(bub.x+bub.w >= 600 ||  bub.y+bub.w >=400 ){
+                    int max = 24;
+                    int min = 0;
+                    int RandomNum = (int) (Math.random() * ((max - min) +1 )) + min;
+                    bub.Speedx = RandomNum;
+                    RandomNum = (int) (Math.random() * ((max - min) +1 )) + min;
+                    bub.Speedy = RandomNum;}
+                    else if (bub.x<= 0 ||  bub.y <=0){
+                     int max = 0;
+                    int min = -24;
+                    int RandomNum = (int) (Math.random() * ((max - min) +1 )) + min;
+                    bub.Speedx = RandomNum;
+                    RandomNum = (int) (Math.random() * ((max - min) +1 )) + min;
+                    bub.Speedy = RandomNum;}
+        
+                }
+                
+            }
+            
+        // end of moveBubbles
+        
+        public void BounceOff(){
+            //makes teh bubbles bounce off the walls
+            for(int i =0; i<b.size(); i ++){
+                Bubble bub = b.get(i);
+                if(bub.x+bub.w >= 600 || bub.x<= 0){
+                bub.Speedx *= -1;
+                }
+                else if(bub.y+bub.w >=400 || bub.y <=0){
+                bub.Speedy *= -1;
+                }
+            }
+               
+            }
+        
+        
+       
+
+        public void mousePressed(MouseEvent e) {
+            //specifies the location of the mouse to add a bubble at that exact location
+            int x = e.getX();
+            int y = e.getY();
+            
+            //adds teh bubbles
+            Bubble bub = new Bubble(x,y);
+            b.add(bub);
+            
+            
+            
+            
+            
+        
+            repaint();//updates the paint method
+        
+
+        }
+
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        public void mouseExited(MouseEvent e) {
+
+        }
+
+        public void mouseClicked(MouseEvent e) {
+
+        }
+
+        public void run() {
+            long beforeTime, timeDiff, sleep;
+            beforeTime = System.currentTimeMillis();
+            int animationDelay = 40;
+            long time = 
+                System.currentTimeMillis();
+            while (true) {//infinite loop
+                // spriteManager.update();
+                repaint();
+                try {
+                    time += animationDelay;
+                    Thread.sleep(Math.max(0,time - 
+                            System.currentTimeMillis()));
+                }catch (InterruptedException e) {
+                    System.out.println(e);
+                }//end catch
+            }//end while loop
+        }//end of run
+
+    }
+
+} 
